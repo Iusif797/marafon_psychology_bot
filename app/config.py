@@ -29,13 +29,17 @@ def _sanitize_secret(raw: str) -> str:
 
 
 def _resolve_webhook_url() -> str:
-    explicit = os.getenv("WEBHOOK_URL", "").strip().rstrip("/")
-    if explicit:
-        return explicit
     render = os.getenv("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
     if render:
         return render
+    explicit = os.getenv("WEBHOOK_URL", "").strip().rstrip("/")
+    if explicit:
+        return explicit
     return ""
+
+
+def _resolve_prod_webhook_url() -> str:
+    return os.getenv("PROD_WEBHOOK_URL", "").strip().rstrip("/")
 
 
 @dataclass(frozen=True)
@@ -46,6 +50,7 @@ class Settings:
     content_dir: Path = field(default_factory=lambda: ROOT_DIR / "content")
     mode: str = field(default_factory=lambda: os.getenv("MODE", "polling").lower())
     webhook_url: str = field(default_factory=_resolve_webhook_url)
+    prod_webhook_url: str = field(default_factory=_resolve_prod_webhook_url)
     webhook_secret: str = field(default_factory=lambda: _sanitize_secret(os.getenv("WEBHOOK_SECRET", "")))
     port: int = field(default_factory=lambda: int(os.getenv("PORT", "10000")))
     timezone: str = field(default_factory=lambda: os.getenv("TIMEZONE", "Europe/Moscow"))
@@ -58,6 +63,10 @@ class Settings:
     @property
     def is_webhook(self) -> bool:
         return self.mode == "webhook" and bool(self.webhook_url)
+
+    @property
+    def has_prod_webhook(self) -> bool:
+        return bool(self.prod_webhook_url) and not os.getenv("RENDER_EXTERNAL_URL")
 
 
 settings = Settings()

@@ -19,14 +19,42 @@ logging.basicConfig(
 logger = logging.getLogger("marafon")
 
 
+async def _restore_prod_webhook(bot: Bot) -> None:
+    if not settings.has_prod_webhook:
+        logger.warning(
+            "Polling stopped without restoring webhook. "
+            "Set PROD_WEBHOOK_URL in .env to auto-restore for production."
+        )
+        return
+    target = f"{settings.prod_webhook_url}{settings.webhook_path}"
+    await bot.set_webhook(
+        url=target,
+        secret_token=settings.webhook_secret,
+        allowed_updates=["message", "callback_query"],
+    )
+    logger.info("Production webhook restored: %s", target)
+
+
 async def _run_polling() -> None:
     bot = build_bot()
     dp = build_dispatcher()
     register(dp)
     await init_db()
-    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.delete_webhook(drop_pending_updates=False)
+    if settings.has_prod_webhook:
+        logger.warning(
+            "Local polling will steal production updates. "
+            "Webhook will be restored to %s on exit.",
+            settings.prod_webhook_url,
+        )
     logger.info("Polling started")
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    finally:
+        try:
+            await _restore_prod_webhook(bot)
+        finally:
+            await bot.session.close()
 
 
 async def _on_startup(bot: Bot) -> None:
