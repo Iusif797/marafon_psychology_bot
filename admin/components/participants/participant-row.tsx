@@ -27,15 +27,16 @@ function gradient(id: number): string {
 }
 
 export function ParticipantRow({ participant, totalSteps }: { participant: Participant; totalSteps: number }) {
-  const stepLabel = participant.completed
-    ? "Завершил"
-    : `Шаг ${participant.currentStep + 1} из ${totalSteps}`;
+  const stepLabel = participant.completed ? "Завершил" : `Шаг ${participant.currentStep + 1} из ${totalSteps}`;
+  const progress = participant.completed
+    ? 100
+    : Math.min(100, Math.round(((participant.currentStep + 1) / Math.max(totalSteps, 1)) * 100));
   const StepIcon = participant.completed ? CheckCircle2 : Clock;
   return (
-    <Card className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover-glow">
+    <Card className="group relative overflow-hidden flex items-center gap-3 sm:gap-4 p-3 sm:p-4 hover-glow">
       <div
         className={cn(
-          "shrink-0 h-10 w-10 rounded-full bg-gradient-to-br flex items-center justify-center text-xs font-semibold text-white",
+          "shrink-0 h-11 w-11 rounded-full bg-gradient-to-br grid place-items-center text-xs font-semibold text-white ring-1 ring-white/10 shadow-md",
           gradient(participant.id),
         )}
       >
@@ -43,19 +44,30 @@ export function ParticipantRow({ participant, totalSteps }: { participant: Parti
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2">
-          <div className="font-medium truncate">{participant.fullName}</div>
+          <div className="font-medium truncate tracking-tight">{participant.fullName}</div>
           {participant.username && (
             <div className="text-xs text-muted-foreground truncate">@{participant.username}</div>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-          <StepIcon
-            className={cn("h-3 w-3", participant.completed ? "text-emerald-400" : "text-muted-foreground")}
-          />
-          <span>{stepLabel}</span>
+        <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-muted-foreground mt-1">
+          <StepIcon className={cn("h-3 w-3", participant.completed ? "text-emerald-400" : "text-muted-foreground")} />
+          <span className="font-medium text-foreground/80">{stepLabel}</span>
           <span className="text-muted-foreground/40">·</span>
-          <span>пришёл {formatRelative(participant.startedAt)}</span>
+          <span className="truncate">{formatRelative(participant.startedAt)}</span>
         </div>
+        <div className="mt-2 h-1 w-full rounded-full bg-white/[0.04] overflow-hidden">
+          <div
+            className={cn(
+              "h-full rounded-full bg-gradient-to-r transition-[width] duration-500",
+              participant.completed ? "from-emerald-400 to-teal-400" : "from-primary to-fuchsia-500",
+            )}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+      <div className="hidden sm:flex flex-col items-end shrink-0 text-right">
+        <span className="text-sm font-semibold tabular-nums tracking-tight">{progress}%</span>
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">прогресс</span>
       </div>
     </Card>
   );
