@@ -28,6 +28,16 @@ def _sanitize_secret(raw: str) -> str:
     return hashlib.sha256((raw or "marafon").encode()).hexdigest()
 
 
+def _resolve_webhook_url() -> str:
+    explicit = os.getenv("WEBHOOK_URL", "").strip().rstrip("/")
+    if explicit:
+        return explicit
+    render = os.getenv("RENDER_EXTERNAL_URL", "").strip().rstrip("/")
+    if render:
+        return render
+    return ""
+
+
 @dataclass(frozen=True)
 class Settings:
     bot_token: str = field(default_factory=lambda: os.environ["BOT_TOKEN"])
@@ -35,7 +45,7 @@ class Settings:
     database_url: str = field(default_factory=lambda: os.environ["DATABASE_URL"])
     content_dir: Path = field(default_factory=lambda: ROOT_DIR / "content")
     mode: str = field(default_factory=lambda: os.getenv("MODE", "polling").lower())
-    webhook_url: str = field(default_factory=lambda: os.getenv("WEBHOOK_URL", "").rstrip("/"))
+    webhook_url: str = field(default_factory=_resolve_webhook_url)
     webhook_secret: str = field(default_factory=lambda: _sanitize_secret(os.getenv("WEBHOOK_SECRET", "")))
     port: int = field(default_factory=lambda: int(os.getenv("PORT", "10000")))
     timezone: str = field(default_factory=lambda: os.getenv("TIMEZONE", "Europe/Moscow"))

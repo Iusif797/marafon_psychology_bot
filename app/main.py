@@ -31,12 +31,15 @@ async def _run_polling() -> None:
 
 async def _on_startup(bot: Bot) -> None:
     await init_db()
+    target = f"{settings.webhook_url}{settings.webhook_path}"
     await bot.set_webhook(
-        url=f"{settings.webhook_url}{settings.webhook_path}",
+        url=target,
         secret_token=settings.webhook_secret,
-        drop_pending_updates=True,
+        drop_pending_updates=False,
+        allowed_updates=["message", "callback_query"],
     )
-    logger.info("Webhook set: %s%s", settings.webhook_url, settings.webhook_path)
+    info = await bot.get_webhook_info()
+    logger.info("Webhook registered: %s | pending=%s", target, info.pending_update_count)
 
 
 async def _health(_: web.Request) -> web.Response:
