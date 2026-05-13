@@ -61,7 +61,7 @@ class Settings:
 
     @property
     def webhook_path(self) -> str:
-        return f"/webhook/{self.webhook_secret}"
+        return "/webhook"
 
     @property
     def is_webhook(self) -> bool:
