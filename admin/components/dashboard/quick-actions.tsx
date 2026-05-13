@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, MessageSquareText, ListChecks, Send } from "lucide-react";
+import { ArrowUpRight, MessageSquareText, ListChecks, Send, Wallet } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
@@ -21,12 +21,20 @@ const actions = [
     iconBg: "from-amber-500 to-orange-500",
   },
   {
+    href: "/payments",
+    title: "Оплата",
+    description: "Цена, paywall, история транзакций",
+    icon: Wallet,
+    accent: "from-emerald-500/25 via-teal-500/10 to-transparent",
+    iconBg: "from-emerald-500 to-teal-500",
+  },
+  {
     href: "/broadcasts",
     title: "Рассылки",
     description: "Сообщения участникам — все и сегментами",
     icon: Send,
-    accent: "from-emerald-500/25 via-teal-500/10 to-transparent",
-    iconBg: "from-emerald-500 to-teal-500",
+    accent: "from-cyan-500/25 via-blue-500/10 to-transparent",
+    iconBg: "from-cyan-500 to-blue-500",
   },
 ];
 
@@ -36,7 +44,7 @@ export function QuickActions() {
       <div className="flex items-baseline justify-between px-1">
         <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Быстрые действия</h2>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {actions.map((a, i) => {
           const Icon = a.icon;
           return (

@@ -7,7 +7,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
 
 from app.config import settings
+from app.db import payments as payments_repo
 from app.db import users as users_repo
+from app.keyboards.flow import paywall_kb
 from app.services.broadcast import broadcast
 from app.services.content import invalidate_cache, load_steps, load_welcome
 
@@ -30,6 +32,7 @@ async def show_admin(message: Message) -> None:
         "<b>Админ-панель</b>\n\n"
         "/stats — статистика участников\n"
         "/broadcast — массовая рассылка\n"
+        "/preview — посмотреть paywall глазами юзера\n"
         "/reload — сбросить кеш контента"
     )
 
@@ -81,3 +84,12 @@ async def reload_content(message: Message) -> None:
     await message.answer(
         f"Кеш сброшен.\nШагов: <b>{len(steps)}</b>\nПриветствие: {len(welcome.greeting)} символов."
     )
+
+
+@router.message(Command("preview"))
+async def preview_paywall(message: Message) -> None:
+    if not _is_admin(message.from_user.id if message.from_user else None):
+        return
+    config = await payments_repo.get_settings()
+    header = f"<i>Превью paywall (видят неоплатившие участники)</i>\nСтатус: {'включён' if config.enabled else 'выключен'}\n"
+    await message.answer(header + "\n" + config.paywall_text, reply_markup=paywall_kb(config.pay_button_text))

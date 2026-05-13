@@ -1,4 +1,4 @@
-import { boolean, integer, pgTable, serial, text, timestamp, bigint } from "drizzle-orm/pg-core";
+import { boolean, integer, numeric, pgTable, serial, text, timestamp, bigint } from "drizzle-orm/pg-core";
 
 export const welcomeBlocks = pgTable("welcome_blocks", {
   key: text("key").primaryKey(),
@@ -26,6 +26,8 @@ export const participants = pgTable("participants", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   completed: boolean("completed").notNull().default(false),
   lastReminderAt: timestamp("last_reminder_at", { withTimezone: true }),
+  paid: boolean("paid").notNull().default(false),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
 });
 
 export const adminAccounts = pgTable("admin_accounts", {
@@ -49,8 +51,34 @@ export const broadcasts = pgTable("broadcasts", {
   completedAt: timestamp("completed_at", { withTimezone: true }),
 });
 
+export const payments = pgTable("payments", {
+  id: text("id").primaryKey(),
+  userId: bigint("user_id", { mode: "number" }).notNull(),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: text("currency").notNull(),
+  provider: text("provider").notNull().default("payriff"),
+  status: text("status").notNull().default("pending"),
+  paymentUrl: text("payment_url"),
+  transactionId: bigint("transaction_id", { mode: "number" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+});
+
+export const paymentSettings = pgTable("payment_settings", {
+  id: integer("id").primaryKey().default(1),
+  enabled: boolean("enabled").notNull().default(true),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull().default("29"),
+  currency: text("currency").notNull().default("USD"),
+  paywallText: text("paywall_text").notNull().default(""),
+  payButtonText: text("pay_button_text").notNull().default("Оплатить и начать"),
+  successText: text("success_text").notNull().default("Оплата прошла. Поехали!"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type WelcomeBlock = typeof welcomeBlocks.$inferSelect;
 export type MarathonStep = typeof marathonSteps.$inferSelect;
 export type Participant = typeof participants.$inferSelect;
 export type AdminAccount = typeof adminAccounts.$inferSelect;
 export type Broadcast = typeof broadcasts.$inferSelect;
+export type Payment = typeof payments.$inferSelect;
+export type PaymentSettings = typeof paymentSettings.$inferSelect;

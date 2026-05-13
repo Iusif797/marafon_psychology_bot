@@ -33,11 +33,49 @@ CREATE TABLE IF NOT EXISTS participants (
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed BOOLEAN NOT NULL DEFAULT FALSE,
-    last_reminder_at TIMESTAMPTZ
+    last_reminder_at TIMESTAMPTZ,
+    paid BOOLEAN NOT NULL DEFAULT FALSE,
+    paid_at TIMESTAMPTZ
 );
+
+ALTER TABLE participants ADD COLUMN IF NOT EXISTS paid BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE participants ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_participants_step ON participants(current_step);
 CREATE INDEX IF NOT EXISTS idx_participants_completed ON participants(completed);
+CREATE INDEX IF NOT EXISTS idx_participants_paid ON participants(paid);
+
+CREATE TABLE IF NOT EXISTS payments (
+    id TEXT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES participants(id) ON DELETE CASCADE,
+    amount NUMERIC(12, 2) NOT NULL,
+    currency TEXT NOT NULL,
+    provider TEXT NOT NULL DEFAULT 'payriff',
+    status TEXT NOT NULL DEFAULT 'pending',
+    payment_url TEXT,
+    transaction_id BIGINT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    completed_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
+
+CREATE TABLE IF NOT EXISTS payment_settings (
+    id INTEGER PRIMARY KEY DEFAULT 1,
+    enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    amount NUMERIC(12, 2) NOT NULL DEFAULT 29,
+    currency TEXT NOT NULL DEFAULT 'USD',
+    paywall_text TEXT NOT NULL DEFAULT '',
+    pay_button_text TEXT NOT NULL DEFAULT 'Оплатить и начать',
+    success_text TEXT NOT NULL DEFAULT 'Оплата прошла. Поехали!',
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT singleton_payment_settings CHECK (id = 1)
+);
+
+INSERT INTO payment_settings (id, paywall_text)
+VALUES (1, 'Готов изменить своё состояние, мышление и жизнь?\n\nТогда нажимай на ссылку ниже для оплаты и присоединяйся к 60-дневному марафону трансформации.')
+ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS admin_accounts (
     id SERIAL PRIMARY KEY,

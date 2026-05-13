@@ -4,8 +4,10 @@ from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, Message
 
+from app.db import payments as payments_repo
 from app.db import users as users_repo
-from app.keyboards.flow import CB_AFTER, CB_BEGIN, CB_INSIDE, after_kb, greeting_kb, inside_kb
+from app.keyboards.flow import CB_AFTER, CB_BEGIN, CB_INSIDE, after_kb, greeting_kb, inside_kb, paywall_kb
+from app.services import payments as payments_service
 from app.services.content import get_step, load_welcome
 from app.services.progress import current_index
 
@@ -41,6 +43,11 @@ async def show_after(cb: CallbackQuery) -> None:
 @router.callback_query(F.data == CB_BEGIN)
 async def begin_marathon(cb: CallbackQuery) -> None:
     if not cb.from_user or not isinstance(cb.message, Message):
+        await cb.answer()
+        return
+    if not await payments_service.is_paid(cb.from_user.id):
+        config = await payments_repo.get_settings()
+        await cb.message.answer(config.paywall_text, reply_markup=paywall_kb(config.pay_button_text))
         await cb.answer()
         return
     index = await current_index(cb.from_user.id)

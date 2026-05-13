@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, MessageSquareText, ListChecks, Users, Send, Sparkles } from "lucide-react";
+import { LayoutDashboard, MessageSquareText, ListChecks, Users, Send, Sparkles, Wallet } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -10,6 +10,7 @@ const navigation = [
   { href: "/", label: "Дашборд", icon: LayoutDashboard },
   { href: "/welcome", label: "Тексты", icon: MessageSquareText },
   { href: "/steps", label: "Шаги", icon: ListChecks },
+  { href: "/payments", label: "Оплата", icon: Wallet },
   { href: "/participants", label: "Люди", icon: Users },
   { href: "/broadcasts", label: "Рассылки", icon: Send },
 ];

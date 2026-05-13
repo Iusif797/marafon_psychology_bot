@@ -27,3 +27,7 @@ services:
         value: Europe/Moscow
       - key: CONTENT_CACHE_TTL
         value: "30"
+      - key: PAYRIFF_SECRET_KEY
+        sync: false
+      - key: BOT_USERNAME
+        sync: false

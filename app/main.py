@@ -11,6 +11,7 @@ from app.bot import build_bot, build_dispatcher
 from app.config import settings
 from app.db.engine import init_db
 from app.handlers import register
+from app.web.payment_callback import register as register_payment_callback
 
 logging.basicConfig(
     level=logging.INFO,
@@ -83,6 +84,7 @@ def _run_webhook() -> None:
     app = web.Application()
     app.router.add_get("/", _health)
     app.router.add_get("/health", _health)
+    register_payment_callback(app, bot)
 
     SimpleRequestHandler(dispatcher=dp, bot=bot, secret_token=settings.webhook_secret).register(
         app, path=settings.webhook_path

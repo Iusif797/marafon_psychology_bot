@@ -55,6 +55,9 @@ class Settings:
     port: int = field(default_factory=lambda: int(os.getenv("PORT", "10000")))
     timezone: str = field(default_factory=lambda: os.getenv("TIMEZONE", "Europe/Moscow"))
     content_cache_ttl: int = field(default_factory=lambda: int(os.getenv("CONTENT_CACHE_TTL", "30")))
+    payriff_secret_key: str = field(default_factory=lambda: os.getenv("PAYRIFF_SECRET_KEY", "").strip())
+    payriff_api_base: str = field(default_factory=lambda: os.getenv("PAYRIFF_API_BASE", "https://api.payriff.com").rstrip("/"))
+    bot_username: str = field(default_factory=lambda: os.getenv("BOT_USERNAME", "").strip().lstrip("@"))
 
     @property
     def webhook_path(self) -> str:
@@ -67,6 +70,14 @@ class Settings:
     @property
     def has_prod_webhook(self) -> bool:
         return bool(self.prod_webhook_url) and not os.getenv("RENDER_EXTERNAL_URL")
+
+    @property
+    def public_base_url(self) -> str:
+        return self.webhook_url or self.prod_webhook_url
+
+    @property
+    def payments_enabled(self) -> bool:
+        return bool(self.payriff_secret_key)
 
 
 settings = Settings()
