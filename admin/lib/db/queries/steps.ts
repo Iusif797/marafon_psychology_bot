@@ -17,6 +17,8 @@ export type StepInput = {
   text: string;
   task: string;
   button: string;
+  attachmentFile: string | null;
+  attachmentCaption: string | null;
 };
 
 export async function createStep(input: StepInput): Promise<MarathonStep> {

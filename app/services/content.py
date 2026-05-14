@@ -15,6 +15,8 @@ class Step:
     task: str
     button: str
     media: str | None = None
+    attachment_file: str | None = None
+    attachment_caption: str | None = None
 
 
 @dataclass(frozen=True)
@@ -54,7 +56,11 @@ async def load_steps() -> list[Step]:
         return _cache["steps"][1]  # type: ignore[return-value]
     async with connect() as conn:
         rows = await conn.fetch(
-            "SELECT position, title, text, task, button, media FROM marathon_steps ORDER BY position"
+            """
+            SELECT position, title, text, task, button, media,
+                   attachment_file, attachment_caption
+            FROM marathon_steps ORDER BY position
+            """
         )
     steps = [
         Step(
@@ -64,6 +70,8 @@ async def load_steps() -> list[Step]:
             task=r["task"] or "",
             button=r["button"] or "Далее",
             media=r["media"],
+            attachment_file=r["attachment_file"],
+            attachment_caption=r["attachment_caption"],
         )
         for i, r in enumerate(rows)
     ]

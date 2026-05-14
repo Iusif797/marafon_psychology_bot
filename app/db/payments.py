@@ -15,6 +15,8 @@ class PaymentSettings:
     paywall_text: str
     pay_button_text: str
     success_text: str
+    welcome_file: str | None
+    welcome_caption: str | None
 
 
 @dataclass(frozen=True)
@@ -30,7 +32,11 @@ class Payment:
 async def get_settings() -> PaymentSettings:
     async with connect() as conn:
         row = await conn.fetchrow(
-            "SELECT enabled, amount, currency, paywall_text, pay_button_text, success_text FROM payment_settings WHERE id = 1"
+            """
+            SELECT enabled, amount, currency, paywall_text, pay_button_text,
+                   success_text, welcome_file, welcome_caption
+            FROM payment_settings WHERE id = 1
+            """
         )
     return PaymentSettings(
         enabled=bool(row["enabled"]) if row else True,
@@ -39,6 +45,8 @@ async def get_settings() -> PaymentSettings:
         paywall_text=str(row["paywall_text"]) if row else "",
         pay_button_text=str(row["pay_button_text"]) if row else "Оплатить и начать",
         success_text=str(row["success_text"]) if row else "Оплата прошла. Поехали!",
+        welcome_file=row["welcome_file"] if row else None,
+        welcome_caption=row["welcome_caption"] if row else None,
     )
 
 

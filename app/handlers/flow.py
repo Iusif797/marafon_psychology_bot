@@ -5,6 +5,7 @@ from aiogram.types import CallbackQuery, Message
 
 from app.keyboards.flow import CB_DONE, CB_NEXT, CB_TASK, step_text_kb, task_kb
 from app.services.content import Step, get_step, total_steps
+from app.services.files import send_attachment
 from app.services.progress import advance, current_index
 
 router = Router(name="flow")
@@ -14,9 +15,17 @@ async def send_step(message: Message, step: Step) -> None:
     body = f"<b>{step.title}</b>\n\n{step.text}"
     if step.task:
         await message.answer(body, reply_markup=step_text_kb())
+        await _send_step_attachment(message, step)
         return
     is_last = step.index == (await total_steps()) - 1
     await message.answer(body, reply_markup=task_kb(step.button, is_last))
+    await _send_step_attachment(message, step)
+
+
+async def _send_step_attachment(message: Message, step: Step) -> None:
+    if not step.attachment_file or not message.bot:
+        return
+    await send_attachment(message.bot, message.chat.id, step.attachment_file, step.attachment_caption)
 
 
 @router.callback_query(F.data == CB_TASK)

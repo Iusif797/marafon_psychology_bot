@@ -12,11 +12,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TelegramPreview } from "@/components/editor/telegram-preview";
 import { HtmlHint } from "@/components/editor/html-hint";
+import { AttachmentFields } from "@/components/editor/attachment-fields";
 import { createStepAction, updateStepAction } from "@/actions/steps";
 
 type Props = {
   id?: number;
-  initial?: { title: string; text: string; task: string; button: string };
+  initial?: {
+    title: string;
+    text: string;
+    task: string;
+    button: string;
+    attachmentFile?: string | null;
+    attachmentCaption?: string | null;
+  };
 };
 
 export function StepForm({ id, initial }: Props) {
@@ -24,6 +32,8 @@ export function StepForm({ id, initial }: Props) {
   const [text, setText] = useState(initial?.text ?? "");
   const [task, setTask] = useState(initial?.task ?? "");
   const [button, setButton] = useState(initial?.button ?? "Далее");
+  const [attachmentFile, setAttachmentFile] = useState(initial?.attachmentFile ?? "");
+  const [attachmentCaption, setAttachmentCaption] = useState(initial?.attachmentCaption ?? "");
   const [isPending, startTransition] = useTransition();
 
   function submit() {
@@ -33,6 +43,8 @@ export function StepForm({ id, initial }: Props) {
       fd.set("text", text);
       fd.set("task", task);
       fd.set("button", button);
+      fd.set("attachmentFile", attachmentFile);
+      fd.set("attachmentCaption", attachmentCaption);
       const res = id != null ? await updateStepAction(id, fd) : await createStepAction(fd);
       if (res && !res.ok) toast.error(res.error || "Ошибка");
       else if (res?.ok) toast.success("Сохранено");
@@ -77,6 +89,12 @@ export function StepForm({ id, initial }: Props) {
               <Label>Подпись кнопки</Label>
               <Input value={button} onChange={(e) => setButton(e.target.value)} placeholder="Я сделал" />
             </div>
+            <AttachmentFields
+              file={attachmentFile ?? ""}
+              caption={attachmentCaption ?? ""}
+              onFileChange={setAttachmentFile}
+              onCaptionChange={setAttachmentCaption}
+            />
           </CardContent>
         </Card>
         <div className="space-y-4 lg:sticky lg:top-6 self-start">

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AttachmentFields } from "@/components/editor/attachment-fields";
 import type { PaymentSettings } from "@/lib/db/schema";
 
 import { TogglePill } from "./toggle-pill";
@@ -23,6 +24,8 @@ export function PaymentSettingsForm({ settings }: { settings: PaymentSettings | 
   const [paywallText, setPaywallText] = useState(settings?.paywallText || DEFAULT_PAYWALL);
   const [payButtonText, setPayButtonText] = useState(settings?.payButtonText || "Оплатить и начать");
   const [successText, setSuccessText] = useState(settings?.successText || "Оплата прошла. Поехали!");
+  const [welcomeFile, setWelcomeFile] = useState(settings?.welcomeFile ?? "");
+  const [welcomeCaption, setWelcomeCaption] = useState(settings?.welcomeCaption ?? "");
   const [pending, startTransition] = useTransition();
 
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -35,6 +38,8 @@ export function PaymentSettingsForm({ settings }: { settings: PaymentSettings | 
         paywallText,
         payButtonText,
         successText,
+        welcomeFile,
+        welcomeCaption,
       });
       if (res.ok) toast.success("Сохранено");
       else toast.error(res.error || "Не удалось сохранить");
@@ -63,6 +68,13 @@ export function PaymentSettingsForm({ settings }: { settings: PaymentSettings | 
           <Input value={successText} onChange={(e) => setSuccessText(e.target.value)} />
         </Field>
       </div>
+      <AttachmentFields
+        file={welcomeFile ?? ""}
+        caption={welcomeCaption ?? ""}
+        onFileChange={setWelcomeFile}
+        onCaptionChange={setWelcomeCaption}
+        hint="Бот пришлёт этот файл сразу после успешной оплаты, перед первым днём марафона. Файл должен лежать в content/files/."
+      />
       <div className="flex justify-end">
         <Button type="submit" disabled={pending}>
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

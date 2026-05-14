@@ -22,8 +22,13 @@ CREATE TABLE IF NOT EXISTS marathon_steps (
     task TEXT NOT NULL DEFAULT '',
     button TEXT NOT NULL DEFAULT 'Далее',
     media TEXT,
+    attachment_file TEXT,
+    attachment_caption TEXT,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE marathon_steps ADD COLUMN IF NOT EXISTS attachment_file TEXT;
+ALTER TABLE marathon_steps ADD COLUMN IF NOT EXISTS attachment_caption TEXT;
 
 CREATE TABLE IF NOT EXISTS participants (
     id BIGINT PRIMARY KEY,
@@ -69,12 +74,22 @@ CREATE TABLE IF NOT EXISTS payment_settings (
     paywall_text TEXT NOT NULL DEFAULT '',
     pay_button_text TEXT NOT NULL DEFAULT 'Оплатить и начать',
     success_text TEXT NOT NULL DEFAULT 'Оплата прошла. Поехали!',
+    welcome_file TEXT,
+    welcome_caption TEXT,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT singleton_payment_settings CHECK (id = 1)
 );
 
-INSERT INTO payment_settings (id, paywall_text)
-VALUES (1, 'Готов изменить своё состояние, мышление и жизнь?\n\nТогда нажимай на ссылку ниже для оплаты и присоединяйся к 60-дневному марафону трансформации.')
+ALTER TABLE payment_settings ADD COLUMN IF NOT EXISTS welcome_file TEXT;
+ALTER TABLE payment_settings ADD COLUMN IF NOT EXISTS welcome_caption TEXT;
+
+INSERT INTO payment_settings (id, paywall_text, welcome_file, welcome_caption)
+VALUES (
+    1,
+    'Готов изменить своё состояние, мышление и жизнь?\n\nТогда нажимай на ссылку ниже для оплаты и присоединяйся к 60-дневному марафону трансформации.',
+    'emotional_state_map.pdf',
+    'Тест «Карта эмоционального состояния» — начни с него.'
+)
 ON CONFLICT (id) DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS admin_accounts (

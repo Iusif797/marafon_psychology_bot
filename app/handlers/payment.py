@@ -10,6 +10,7 @@ from app.handlers.flow import send_step
 from app.keyboards.flow import CB_CHECK, CB_PAY, check_payment_kb, payment_link_kb
 from app.services import payments as service
 from app.services.content import get_step
+from app.services.files import send_attachment
 from app.services.progress import current_index
 
 logger = logging.getLogger("handler.payment")
@@ -68,6 +69,8 @@ async def check_payment(cb: CallbackQuery) -> None:
 async def _grant_marathon(message: Message, user_id: int) -> None:
     config = await repo.get_settings()
     await message.answer(config.success_text)
+    if config.welcome_file and message.bot:
+        await send_attachment(message.bot, message.chat.id, config.welcome_file, config.welcome_caption)
     index = await current_index(user_id)
     step = await get_step(index)
     if step:

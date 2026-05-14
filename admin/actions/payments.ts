@@ -15,6 +15,8 @@ const schema = z.object({
   paywallText: z.string().max(4000),
   payButtonText: z.string().max(64),
   successText: z.string().max(500),
+  welcomeFile: z.string().max(200).optional().default(""),
+  welcomeCaption: z.string().max(500).optional().default(""),
 });
 
 export async function savePaymentSettings(input: z.infer<typeof schema>) {
@@ -22,27 +24,33 @@ export async function savePaymentSettings(input: z.infer<typeof schema>) {
   if (!session?.user) return { ok: false, error: "Unauthorized" };
   const parsed = schema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.message };
-  const { enabled, amount, currency, paywallText, payButtonText, successText } = parsed.data;
+  const data = parsed.data;
+  const welcomeFile = data.welcomeFile.trim() || null;
+  const welcomeCaption = data.welcomeCaption.trim() || null;
   await db
     .insert(paymentSettings)
     .values({
       id: 1,
-      enabled,
-      amount: String(amount),
-      currency,
-      paywallText,
-      payButtonText,
-      successText,
+      enabled: data.enabled,
+      amount: String(data.amount),
+      currency: data.currency,
+      paywallText: data.paywallText,
+      payButtonText: data.payButtonText,
+      successText: data.successText,
+      welcomeFile,
+      welcomeCaption,
     })
     .onConflictDoUpdate({
       target: paymentSettings.id,
       set: {
-        enabled,
-        amount: String(amount),
-        currency,
-        paywallText,
-        payButtonText,
-        successText,
+        enabled: data.enabled,
+        amount: String(data.amount),
+        currency: data.currency,
+        paywallText: data.paywallText,
+        payButtonText: data.payButtonText,
+        successText: data.successText,
+        welcomeFile,
+        welcomeCaption,
         updatedAt: new Date(),
       },
     });

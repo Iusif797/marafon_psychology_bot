@@ -14,6 +14,8 @@ export const marathonSteps = pgTable("marathon_steps", {
   task: text("task").notNull().default(""),
   button: text("button").notNull().default("Далее"),
   media: text("media"),
+  attachmentFile: text("attachment_file"),
+  attachmentCaption: text("attachment_caption"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -72,6 +74,8 @@ export const paymentSettings = pgTable("payment_settings", {
   paywallText: text("paywall_text").notNull().default(""),
   payButtonText: text("pay_button_text").notNull().default("Оплатить и начать"),
   successText: text("success_text").notNull().default("Оплата прошла. Поехали!"),
+  welcomeFile: text("welcome_file"),
+  welcomeCaption: text("welcome_caption"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
