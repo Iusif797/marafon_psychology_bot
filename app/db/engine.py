@@ -69,7 +69,7 @@ CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status);
 CREATE TABLE IF NOT EXISTS payment_settings (
     id INTEGER PRIMARY KEY DEFAULT 1,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    amount NUMERIC(12, 2) NOT NULL DEFAULT 29,
+    amount NUMERIC(12, 2) NOT NULL DEFAULT 60,
     currency TEXT NOT NULL DEFAULT 'USD',
     paywall_text TEXT NOT NULL DEFAULT '',
     pay_button_text TEXT NOT NULL DEFAULT 'Оплатить и начать',

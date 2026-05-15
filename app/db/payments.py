@@ -40,7 +40,7 @@ async def get_settings() -> PaymentSettings:
         )
     return PaymentSettings(
         enabled=bool(row["enabled"]) if row else True,
-        amount=Decimal(row["amount"]) if row else Decimal("29"),
+        amount=Decimal(row["amount"]) if row else Decimal("60"),
         currency=str(row["currency"]) if row else "USD",
         paywall_text=str(row["paywall_text"]) if row else "",
         pay_button_text=str(row["pay_button_text"]) if row else "Оплатить и начать",

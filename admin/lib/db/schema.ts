@@ -69,7 +69,7 @@ export const payments = pgTable("payments", {
 export const paymentSettings = pgTable("payment_settings", {
   id: integer("id").primaryKey().default(1),
   enabled: boolean("enabled").notNull().default(true),
-  amount: numeric("amount", { precision: 12, scale: 2 }).notNull().default("29"),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull().default("60"),
   currency: text("currency").notNull().default("USD"),
   paywallText: text("paywall_text").notNull().default(""),
   payButtonText: text("pay_button_text").notNull().default("Оплатить и начать"),

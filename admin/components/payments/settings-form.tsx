@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AttachmentFields } from "@/components/editor/attachment-fields";
 import type { PaymentSettings } from "@/lib/db/schema";
 
+import { PricePresets } from "./price-presets";
 import { TogglePill } from "./toggle-pill";
 
 const DEFAULT_PAYWALL =
@@ -19,7 +20,7 @@ const DEFAULT_PAYWALL =
 
 export function PaymentSettingsForm({ settings }: { settings: PaymentSettings | null }) {
   const [enabled, setEnabled] = useState(settings?.enabled ?? true);
-  const [amount, setAmount] = useState(settings?.amount ?? "29");
+  const [amount, setAmount] = useState(settings?.amount ?? "60");
   const [currency, setCurrency] = useState(settings?.currency ?? "USD");
   const [paywallText, setPaywallText] = useState(settings?.paywallText || DEFAULT_PAYWALL);
   const [payButtonText, setPayButtonText] = useState(settings?.payButtonText || "Оплатить и начать");
@@ -52,6 +53,7 @@ export function PaymentSettingsForm({ settings }: { settings: PaymentSettings | 
         <TogglePill enabled={enabled} onChange={setEnabled} />
         <Field label="Цена">
           <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <PricePresets value={String(amount)} onChange={setAmount} />
         </Field>
         <Field label="Валюта">
           <Input value={currency} onChange={(e) => setCurrency(e.target.value)} placeholder="USD" />
